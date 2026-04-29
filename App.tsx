@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Lock } from 'lucide-react';
 import { Hero } from './components/01Hero';
 import PluspetrolOperationsCommandV5 from './components/02Dashboardv5';
-import PluspetrolWellFactoryCommand from './components/FactoryCommand_v4_5_1';
+import PluspetrolWellFactoryCommand from './components/FactoryCommand_v4_6';
 import MacroStrategicAperture from './components/03Proposal';
 import FieldRealityAxiomV3 from './components/FieldRealityAxiom_v3';
 import { DiscoverySimulator } from './components/05Discovery';

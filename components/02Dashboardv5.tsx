@@ -1223,9 +1223,8 @@ function TimeWindowSwitch({
               setTimeWindow(window);
               setOpen(true);
             }}
-            className={`rounded-xl px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] transition ${
-              timeWindow === window ? 'bg-cyan-300 text-slate-950 shadow-[0_0_18px_rgba(34,211,238,.35)]' : 'text-slate-400 hover:text-white'
-            }`}
+            className={`rounded-xl px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] transition ${timeWindow === window ? 'bg-cyan-300 text-slate-950 shadow-[0_0_18px_rgba(34,211,238,.35)]' : 'text-slate-400 hover:text-white'
+              }`}
           >
             {window}
           </button>
@@ -1316,9 +1315,8 @@ function ScenarioModePicker({ scenario, setScenario, productMode }: { scenario: 
                       setScenario(mode);
                       setOpen(false);
                     }}
-                    className={`group rounded-2xl border p-3 text-left transition hover:bg-white/[0.07] ${
-                      selected ? `${toneClasses(detail.tones[0]).border} ${toneClasses(detail.tones[0]).bg}` : 'border-white/10 bg-white/[0.035]'
-                    }`}
+                    className={`group rounded-2xl border p-3 text-left transition hover:bg-white/[0.07] ${selected ? `${toneClasses(detail.tones[0]).border} ${toneClasses(detail.tones[0]).bg}` : 'border-white/10 bg-white/[0.035]'
+                      }`}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
@@ -1377,7 +1375,7 @@ function Header({
           </div>
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-lg font-semibold tracking-[-0.04em] text-white md:text-xl">Pluspetrol Operations Command v5</h1>
+              <h1 className="text-lg font-semibold tracking-[-0.04em] text-white md:text-xl">Pluspetrol Live Control Room</h1>
               <span className={`rounded-full border px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.2em] ${toneClasses(stage.tone).border} ${toneClasses(stage.tone).bg} ${toneClasses(stage.tone).text}`}>
                 {productMode === 'gas' ? 'GAS FLOW' : 'CRUDE FLOW'} · {stage.short}
               </span>
@@ -1404,9 +1402,8 @@ function Header({
               <button
                 key={mode}
                 onClick={() => setProductMode(mode)}
-                className={`rounded-xl px-3 text-[10px] font-black uppercase tracking-[0.14em] transition ${
-                  productMode === mode ? 'bg-white text-slate-950' : 'text-slate-400 hover:text-white'
-                }`}
+                className={`rounded-xl px-3 text-[10px] font-black uppercase tracking-[0.14em] transition ${productMode === mode ? 'bg-white text-slate-950' : 'text-slate-400 hover:text-white'
+                  }`}
               >
                 {mode}
               </button>
@@ -1417,9 +1414,8 @@ function Header({
 
           <button
             onClick={() => setAutoPilot(!autoPilot)}
-            className={`flex h-9 items-center gap-2 rounded-2xl border px-3 text-[10px] font-black uppercase tracking-[0.16em] transition ${
-              autoPilot ? 'border-cyan-300/40 bg-cyan-300/10 text-cyan-100' : 'border-white/10 bg-white/[0.04] text-slate-300 hover:text-white'
-            }`}
+            className={`flex h-9 items-center gap-2 rounded-2xl border px-3 text-[10px] font-black uppercase tracking-[0.16em] transition ${autoPilot ? 'border-cyan-300/40 bg-cyan-300/10 text-cyan-100' : 'border-white/10 bg-white/[0.04] text-slate-300 hover:text-white'
+              }`}
           >
             {autoPilot ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
             Demo
@@ -1582,9 +1578,8 @@ function StageNavigator({
           return (
             <div
               key={stage.id}
-              className={`group relative overflow-hidden rounded-2xl border transition ${
-                active ? `${tone.border} ${tone.bg} ${tone.glow}` : 'border-white/10 bg-white/[0.035] hover:border-white/20 hover:bg-white/[0.06]'
-              }`}
+              className={`group relative overflow-hidden rounded-2xl border transition ${active ? `${tone.border} ${tone.bg} ${tone.glow}` : 'border-white/10 bg-white/[0.035] hover:border-white/20 hover:bg-white/[0.06]'
+                }`}
             >
               <button
                 onClick={() => {
@@ -3054,60 +3049,60 @@ export default function PluspetrolOperationsCommand() {
         <div className="absolute inset-0 opacity-[0.045]" style={{ backgroundImage: 'linear-gradient(transparent 50%, rgba(255,255,255,.9) 50%)', backgroundSize: '100% 4px' }} />
 
         <Header
-        clock={clock}
-        stage={activeConfig}
-        timeWindow={timeWindow}
-        setTimeWindow={setTimeWindow}
-        scenario={scenario}
-        setScenario={setScenario}
-        productMode={productMode}
-        setProductMode={setProductMode}
-        autoPilot={autoPilot}
-        setAutoPilot={setAutoPilot}
-      />
+          clock={clock}
+          stage={activeConfig}
+          timeWindow={timeWindow}
+          setTimeWindow={setTimeWindow}
+          scenario={scenario}
+          setScenario={setScenario}
+          productMode={productMode}
+          setProductMode={setProductMode}
+          autoPilot={autoPilot}
+          setAutoPilot={setAutoPilot}
+        />
 
-      <main className="relative z-10 grid flex-1 min-h-0 grid-rows-[1fr_auto] xl:grid-cols-[1fr_332px] xl:grid-rows-1">
-        <div className="relative min-h-0 p-3 lg:p-3.5">
-          <div className="grid h-full min-h-0 grid-rows-[auto_1fr_auto] gap-3">
-            <ExecutiveRibbon
-              stage={activeStage}
-              scenario={scenario}
-              tick={tick}
-              productMode={productMode}
-              onFocus={setFocus}
-              onOpenAlert={() => {
-                setAutoPilot(false);
-                setScenario('constraint');
-                setActiveStage('alerts');
-                setFocus(null);
-              }}
-            />
+        <main className="relative z-10 grid flex-1 min-h-0 grid-rows-[1fr_auto] xl:grid-cols-[1fr_332px] xl:grid-rows-1">
+          <div className="relative min-h-0 p-3 lg:p-3.5">
+            <div className="grid h-full min-h-0 grid-rows-[auto_1fr_auto] gap-3">
+              <ExecutiveRibbon
+                stage={activeStage}
+                scenario={scenario}
+                tick={tick}
+                productMode={productMode}
+                onFocus={setFocus}
+                onOpenAlert={() => {
+                  setAutoPilot(false);
+                  setScenario('constraint');
+                  setActiveStage('alerts');
+                  setFocus(null);
+                }}
+              />
 
-            <div className="grid min-h-0 gap-3 xl:grid-cols-[205px_1fr]">
-              <StageNavigator stages={stageCatalog} activeStage={activeStage} setActiveStage={setActiveStage} setFocus={setFocus} setAutoPilot={setAutoPilot} />
-              <StageCanvas stage={activeStage} scenario={scenario} tick={tick} productMode={productMode} setFocus={setFocus} />
+              <div className="grid min-h-0 gap-3 xl:grid-cols-[205px_1fr]">
+                <StageNavigator stages={stageCatalog} activeStage={activeStage} setActiveStage={setActiveStage} setFocus={setFocus} setAutoPilot={setAutoPilot} />
+                <StageCanvas stage={activeStage} scenario={scenario} tick={tick} productMode={productMode} setFocus={setFocus} />
+              </div>
+
+              <CostFooterSwitch
+                stage={activeStage}
+                scenario={scenario}
+                timeWindow={timeWindow}
+                tick={tick}
+                productMode={productMode}
+                costFooterMode={costFooterMode}
+                setCostFooterMode={setCostFooterMode}
+                setExpandedChart={setExpandedChart}
+              />
             </div>
 
-            <CostFooterSwitch
-              stage={activeStage}
-              scenario={scenario}
-              timeWindow={timeWindow}
-              tick={tick}
-              productMode={productMode}
-              costFooterMode={costFooterMode}
-              setCostFooterMode={setCostFooterMode}
-              setExpandedChart={setExpandedChart}
-            />
+            <FocusDrawer focus={focus} onClose={() => setFocus(null)} />
           </div>
 
-          <FocusDrawer focus={focus} onClose={() => setFocus(null)} />
-        </div>
+          <AnalyticsPanel stage={activeStage} scenario={scenario} tick={tick} productMode={productMode} setFocus={setFocus} setScenario={setScenario} />
+        </main>
 
-        <AnalyticsPanel stage={activeStage} scenario={scenario} tick={tick} productMode={productMode} setFocus={setFocus} setScenario={setScenario} />
-      </main>
-
-      <LiveTicker scenario={scenario} />
-      <ExpandedChartModal chart={expandedChart} onClose={() => setExpandedChart(null)} />
+        <LiveTicker scenario={scenario} />
+        <ExpandedChartModal chart={expandedChart} onClose={() => setExpandedChart(null)} />
       </div>
     </section>
   );

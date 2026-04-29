@@ -812,6 +812,13 @@ function calculateSystemMetrics(controls: WhatIfControls, scenario: ScenarioId, 
   );
   const riskLevel = riskFromScore(bottleneckSeverity);
   const capitalEfficiency = clamp(92 + marginImpact * 3.8 - scheduleDelay * 1.8 + (rigFactor - 1) * 18, 58, 106);
+  const dominantConstraint = [
+    { label: 'Completion logistics', value: fracContinuityRisk + queuedTrucks * 0.18 },
+    { label: 'Inventory coverage', value: inventoryRisk },
+    { label: 'Battery / gathering capacity', value: batteryUtilization - 4 },
+    { label: 'Evacuation / treatment capacity', value: evacuationUtilization - 2 },
+    { label: 'Drilling sequence', value: 100 - drillingScheduleConfidence },
+  ].sort((a, b) => b.value - a.value)[0].label;
 
   return {
     totalWellsProgram: PROGRAM_WELLS,
@@ -844,7 +851,7 @@ function calculateSystemMetrics(controls: WhatIfControls, scenario: ScenarioId, 
     riskLevel,
     activeWells,
     capitalEfficiency,
-    dominantConstraint: 'Logistics',
+    dominantConstraint,
   };
 }
 
@@ -1570,6 +1577,7 @@ function KpiCard({
   icon: LucideIcon;
   active: boolean;
   onClick: () => void;
+  key?: string;
 }) {
   const level = riskFromScore(risk);
   const tone = toneClasses[level];
@@ -1739,14 +1747,17 @@ function GlobalKpis({
 
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-5">
-      {kpis.map((kpi) => (
-        <KpiCard
-          key={kpi.id}
-          {...kpi}
-          active={selectedAsset?.type === 'kpi' && selectedAsset.id === kpi.id}
-          onClick={() => onKpiClick(kpi.id)}
-        />
-      ))}
+      {kpis.map((kpi) => {
+        const { id, ...kpiProps } = kpi;
+        return (
+          <KpiCard
+            key={id}
+            {...kpiProps}
+            active={selectedAsset?.type === 'kpi' && selectedAsset.id === id}
+            onClick={() => onKpiClick(id)}
+          />
+        );
+      })}
       <div className="hidden rounded-2xl border border-cyan-200 bg-gradient-to-br from-cyan-50 to-white p-4 shadow-[0_18px_45px_-30px_rgba(14,165,233,0.55)] 2xl:block">
         <div className="flex items-center justify-between">
           <div className="text-[11px] font-black uppercase tracking-[0.18em] text-cyan-700">Active stage</div>
@@ -1771,58 +1782,40 @@ function StageSpine({
   onStageClick: (stage: StageId) => void;
 }) {
   return (
-    <div className="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white/80 p-3 shadow-[0_20px_55px_-38px_rgba(15,23,42,0.45)] backdrop-blur">
-      <div className="mb-3 flex items-center justify-between gap-3 px-1">
-        <div>
-          <div className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">Stage navigation spine</div>
-          <div className="text-sm font-semibold text-slate-700">Clicking a stage re-shapes the operating model, charts, risks, and recommendations.</div>
-        </div>
-        <div className="hidden items-center gap-2 text-xs font-bold text-slate-500 lg:flex">
-          <GitBranch className="h-4 w-4 text-cyan-600" /> connected field lifecycle
-        </div>
+    <div className="h-full w-full">
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <div className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">field lifecycle</div>
+        <div className="text-[10px] font-bold text-slate-400">connected stages · click to pivot</div>
       </div>
-      <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-7">
+      <div className="grid h-[calc(100%-1.35rem)] grid-cols-7 gap-2">
         {stageStates.map((stage, index) => {
           const Icon = stage.icon;
           const active = activeStage === stage.id;
-          const level = riskFromScore(stage.risk);
+          const tone = toneClasses[riskFromScore(stage.risk)];
           return (
             <button
               key={stage.id}
               type="button"
               onClick={() => onStageClick(stage.id)}
-              className={`group relative min-h-[150px] overflow-hidden rounded-2xl border p-3 text-left transition-all duration-300 ${
-                active
-                  ? 'border-cyan-400 bg-gradient-to-br from-white via-cyan-50 to-blue-50 shadow-[0_22px_50px_-28px_rgba(14,165,233,0.7)] ring-2 ring-cyan-100'
-                  : 'border-slate-200 bg-white/80 hover:-translate-y-0.5 hover:border-cyan-200 hover:bg-cyan-50/30'
+              className={`group relative overflow-hidden rounded-2xl border bg-white p-2 text-left transition hover:border-cyan-300 ${
+                active ? 'border-[#001C2E] shadow-[0_10px_26px_-20px_rgba(0,28,46,0.7)] ring-2 ring-cyan-100' : 'border-slate-200'
               }`}
             >
-              <div className="absolute inset-x-0 top-0 h-1" style={{ background: `linear-gradient(90deg, ${stageAccent[stage.id]}, rgba(203,213,225,0.2))` }} />
-              <div className="flex items-start justify-between gap-2">
-                <span className={`rounded-xl border p-2 ${toneClasses[level].bg} ${toneClasses[level].border}`}>
-                  <Icon className={`h-4 w-4 ${toneClasses[level].text}`} />
+              <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${tone.fill}`} />
+              <div className="flex items-center justify-between gap-2">
+                <span className={`rounded-xl border p-1.5 ${tone.bg} ${tone.border}`}>
+                  <Icon className={`h-3.5 w-3.5 ${tone.text}`} />
                 </span>
-                <span className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">0{index + 1}</span>
+                <span className="text-[9px] font-black text-slate-300">{String(index + 1).padStart(2, '0')}</span>
               </div>
-              <div className="mt-3 text-sm font-black leading-tight text-slate-950">{stage.name}</div>
-              <div className="mt-1 line-clamp-2 text-[11px] font-semibold leading-relaxed text-slate-500">{stage.status}</div>
-              <div className="mt-3 flex items-baseline justify-between gap-2">
-                <span className="text-xs font-black text-slate-800">{stage.liveMetric}</span>
-                <StatusPill risk={stage.risk} label={riskFromScore(stage.risk)} />
+              <div className="mt-2 truncate text-[11px] font-black leading-tight text-[#001C2E]">{stage.short}</div>
+              <div className="mt-1 truncate text-[10px] font-semibold text-slate-500">{stage.liveMetric}</div>
+              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
+                <div className={`h-full rounded-full bg-gradient-to-r ${tone.fill}`} style={{ width: `${clamp(stage.progress, 6, 100)}%` }} />
               </div>
-              <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-100">
-                <motion.div
-                  className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-blue-500"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${clamp(stage.progress, 4, 100)}%` }}
-                />
-              </div>
-              <div className="mt-2 flex items-center justify-between text-[11px] font-bold text-slate-500">
-                <span>{stage.downstreamCount} downstream</span>
-                <span className="flex items-center gap-1 text-cyan-700">
-                  {stage.affected}
-                  <ChevronRight className="h-3 w-3" />
-                </span>
+              <div className="mt-1 flex items-center justify-between text-[9px] font-bold text-slate-400">
+                <span>{riskFromScore(stage.risk)}</span>
+                <span>{stage.downstreamCount}</span>
               </div>
             </button>
           );
@@ -2453,66 +2446,67 @@ function OperatingCanvas({
 }) {
   const stage = STAGES.find((item) => item.id === activeStage)!;
   const Icon = stage.icon;
+  const continuityScore = clamp(100 - metrics.fracContinuityRisk, 0, 100);
 
   return (
-    <div className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white/85 shadow-[0_28px_80px_-48px_rgba(15,23,42,0.55)] backdrop-blur">
-      <div className="flex flex-col gap-3 border-b border-slate-200 bg-white/70 p-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex items-center gap-3">
-          <span className="rounded-2xl border border-cyan-200 bg-cyan-50 p-3 text-cyan-700">
-            <Icon className="h-5 w-5" />
-          </span>
-          <div>
-            <div className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">Central interactive operating canvas</div>
-            <h2 className="text-lg font-black text-slate-950">{stage.name} digital twin</h2>
-            <p className="text-xs font-semibold text-slate-600">{stage.purpose}</p>
-          </div>
-        </div>
-        <div className="flex flex-wrap items-center gap-2 text-xs font-bold text-slate-600">
-          <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5">selected: {getAssetLabel(selectedAsset)}</span>
-          <span className="rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1.5 text-cyan-700">{metrics.trucksActive} active trucks</span>
-          <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-amber-700">{metrics.wellsDelayed} delayed wells</span>
+    <div className="relative h-full min-h-0 overflow-hidden rounded-[1.35rem] border border-slate-200 bg-white shadow-[0_18px_55px_-44px_rgba(15,23,42,0.55)]">
+      <div className="absolute left-3 top-3 z-20 flex items-center gap-2 rounded-2xl border border-white/80 bg-white/88 px-3 py-2 shadow-sm backdrop-blur">
+        <span className="rounded-xl border border-cyan-200 bg-cyan-50 p-2 text-cyan-700">
+          <Icon className="h-4 w-4" />
+        </span>
+        <div>
+          <div className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">{stage.short} twin</div>
+          <div className="text-sm font-black leading-tight text-[#001C2E]">{stage.name}</div>
         </div>
       </div>
 
-      <div className="relative h-[560px] w-full overflow-hidden bg-slate-50/60">
-        <CanvasLegend activeStage={activeStage} selectedViewMode={selectedViewMode} metrics={metrics} />
-        <svg viewBox="0 0 1000 520" className="h-full w-full">
-          <SvgBackdrop activeStage={activeStage} selectedViewMode={selectedViewMode} />
-          <AnimatePresence mode="wait">
-            <motion.g key={activeStage} initial={{ opacity: 0, scale: 0.985 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.015 }} transition={{ duration: 0.35 }}>
-              {activeStage === 'pad' ? (
-                <PadConstructionView pads={pads} inventory={inventory} selectedAsset={selectedAsset} selectedMaterial={selectedMaterial} metrics={metrics} onSelectAsset={onSelectAsset} />
-              ) : null}
-              {activeStage === 'drilling' ? (
-                <DrillingView rigs={rigs} wells={wells} selectedAsset={selectedAsset} metrics={metrics} controls={controls} onSelectAsset={onSelectAsset} />
-              ) : null}
-              {activeStage === 'completion' ? (
-                <CompletionView
-                  fracSpreads={fracSpreads}
-                  trucks={trucks}
-                  selectedAsset={selectedAsset}
-                  selectedTruck={selectedTruck}
-                  selectedMaterial={selectedMaterial}
-                  metrics={metrics}
-                  controls={controls}
-                  onSelectAsset={onSelectAsset}
-                  onSelectTruck={onSelectTruck}
-                />
-              ) : null}
-              {activeStage === 'production' ? (
-                <ProductionView wells={wells} batteries={batteries} selectedAsset={selectedAsset} metrics={metrics} onSelectAsset={onSelectAsset} />
-              ) : null}
-              {activeStage === 'gathering' ? (
-                <GatheringView pads={pads} batteries={batteries} selectedAsset={selectedAsset} metrics={metrics} onSelectAsset={onSelectAsset} />
-              ) : null}
-              {activeStage === 'treatment' ? (
-                <TreatmentView plants={plants} metrics={metrics} selectedAsset={selectedAsset} onSelectAsset={onSelectAsset} />
-              ) : null}
-              {activeStage === 'storage' ? <StorageView tanks={tanks} metrics={metrics} selectedAsset={selectedAsset} onSelectAsset={onSelectAsset} /> : null}
-            </motion.g>
-          </AnimatePresence>
-        </svg>
+      <div className="absolute right-3 top-3 z-20 flex flex-wrap items-center justify-end gap-2 text-[10px] font-black">
+        <span className="rounded-full border border-slate-200 bg-white/88 px-3 py-1 text-slate-500">{selectedAsset?.label ?? 'field overview'}</span>
+        <span className="rounded-full border border-cyan-200 bg-cyan-50/90 px-3 py-1 text-cyan-700">{selectedViewMode}</span>
+        <span className="rounded-full border border-emerald-200 bg-emerald-50/90 px-3 py-1 text-emerald-700">{continuityScore.toFixed(0)}% frac continuity</span>
       </div>
+
+      <div className="absolute bottom-3 left-3 z-20 grid grid-cols-3 gap-2 text-[10px] font-black">
+        <div className="rounded-2xl border border-white/80 bg-white/88 px-3 py-2 shadow-sm">
+          <div className="uppercase tracking-[0.16em] text-slate-400">Risk</div>
+          <div className={toneClasses[metrics.riskLevel].text}>{metrics.bottleneckSeverity.toFixed(0)}</div>
+        </div>
+        <div className="rounded-2xl border border-white/80 bg-white/88 px-3 py-2 shadow-sm">
+          <div className="uppercase tracking-[0.16em] text-slate-400">Queue</div>
+          <div className="text-slate-900">{metrics.truckQueueTime.toFixed(1)}h</div>
+        </div>
+        <div className="rounded-2xl border border-white/80 bg-white/88 px-3 py-2 shadow-sm">
+          <div className="uppercase tracking-[0.16em] text-slate-400">Margin</div>
+          <div className={metrics.marginImpact >= 0 ? 'text-emerald-700' : 'text-rose-700'}>{metrics.marginImpact >= 0 ? '+' : ''}{metrics.marginImpact.toFixed(2)}</div>
+        </div>
+      </div>
+
+      <svg viewBox="0 0 1000 520" className="h-full w-full">
+        <SvgBackdrop activeStage={activeStage} selectedViewMode={selectedViewMode} />
+        <g>
+          {activeStage === 'pad' ? (
+            <PadConstructionView pads={pads} inventory={inventory} selectedAsset={selectedAsset} selectedMaterial={selectedMaterial} metrics={metrics} onSelectAsset={onSelectAsset} />
+          ) : null}
+          {activeStage === 'drilling' ? (
+            <DrillingView rigs={rigs} wells={wells} selectedAsset={selectedAsset} metrics={metrics} controls={controls} onSelectAsset={onSelectAsset} />
+          ) : null}
+          {activeStage === 'completion' ? (
+            <CompletionView fracSpreads={fracSpreads} trucks={trucks} selectedAsset={selectedAsset} selectedTruck={selectedTruck} selectedMaterial={selectedMaterial} metrics={metrics} controls={controls} onSelectAsset={onSelectAsset} onSelectTruck={onSelectTruck} />
+          ) : null}
+          {activeStage === 'production' ? (
+            <ProductionView wells={wells} batteries={batteries} selectedAsset={selectedAsset} metrics={metrics} onSelectAsset={onSelectAsset} />
+          ) : null}
+          {activeStage === 'gathering' ? (
+            <GatheringView pads={pads} batteries={batteries} selectedAsset={selectedAsset} metrics={metrics} onSelectAsset={onSelectAsset} />
+          ) : null}
+          {activeStage === 'treatment' ? (
+            <TreatmentView plants={plants} selectedAsset={selectedAsset} metrics={metrics} onSelectAsset={onSelectAsset} />
+          ) : null}
+          {activeStage === 'storage' ? (
+            <StorageView tanks={tanks} selectedAsset={selectedAsset} metrics={metrics} onSelectAsset={onSelectAsset} />
+          ) : null}
+        </g>
+      </svg>
     </div>
   );
 }
@@ -2873,68 +2867,66 @@ function WhatIfConsole({
 }
 function ImpactPropagationPanel({ ai, metrics, selectedAsset, selectedTruck, selectedMaterial }: { ai: AiRecommendation; metrics: SystemMetrics; selectedAsset: SelectedAsset | null; selectedTruck: TruckItem | null; selectedMaterial: InventoryItem | null }) {
   const urgencyTone = toneClasses[ai.urgency];
+  const selectedFocus = selectedTruck ? `${selectedTruck.id} · ${selectedTruck.cargo}` : selectedMaterial ? selectedMaterial.name : selectedAsset?.label ?? 'Field system';
+  const localFlow = selectedMaterial?.id === 'casing'
+    ? ['Casing cover', 'Rig sequence', 'Wellbore handoff', 'Completion queue', 'Capital efficiency']
+    : selectedMaterial?.id === 'sand'
+      ? ['Sand cover', 'Truck gate', 'Frac continuity', 'Startup timing', 'Forecast']
+      : selectedMaterial?.id === 'water'
+        ? ['Water buffer', 'Pumping window', 'Stage cadence', 'Pad readiness', 'Forecast']
+        : selectedMaterial?.id === 'diesel'
+          ? ['Fuel cover', 'Fleet endurance', 'Pump / rig hours', 'Execution reliability', 'Cost']
+          : ['Selected driver', 'Local execution', 'Schedule handoff', 'Surface conversion', 'Economics'];
+
   return (
-    <div className="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white/90 shadow-[0_24px_70px_-44px_rgba(15,23,42,0.55)] backdrop-blur">
-      <div className="border-b border-slate-200 bg-gradient-to-br from-white via-cyan-50/70 to-blue-50/60 p-4">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">
-            <BrainCircuit className="h-4 w-4 text-cyan-600" /> System consequence engine
+    <div className="overflow-hidden rounded-[1.35rem] border border-slate-200 bg-white shadow-[0_18px_55px_-44px_rgba(15,23,42,0.5)]">
+      <div className="border-b border-slate-200 bg-gradient-to-r from-white to-cyan-50/60 px-4 py-3">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <div className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">system consequence engine</div>
+            <div className="mt-1 text-lg font-black leading-tight text-[#001C2E]">Focus: {selectedFocus}</div>
+            <div className="mt-1 text-xs font-bold text-slate-500">Global constraint: {metrics.dominantConstraint}</div>
           </div>
-          <StatusPill risk={metrics.bottleneckSeverity} label={ai.urgency} />
-        </div>
-        <div className="mt-3 rounded-3xl border border-white/80 bg-white/80 p-3 shadow-inner">
-          <div className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-400">selected driver</div>
-          <div className="mt-1 text-base font-black leading-tight text-slate-950">{ai.driver}</div>
-          <div className="mt-2 flex flex-wrap gap-2 text-[11px] font-bold text-slate-600">
-            {selectedTruck ? <span className="rounded-full bg-slate-100 px-2 py-1">truck-selected</span> : null}
-            {selectedMaterial ? <span className="rounded-full bg-cyan-50 px-2 py-1 text-cyan-700">{selectedMaterial.name}</span> : null}
-            {selectedAsset ? <span className="rounded-full bg-blue-50 px-2 py-1 text-blue-700">{selectedAsset.type}</span> : null}
-          </div>
+          <span className={`rounded-full border px-2.5 py-1 text-[10px] font-black uppercase ${urgencyTone.bg} ${urgencyTone.border} ${urgencyTone.text}`}>{ai.urgency}</span>
         </div>
       </div>
 
       <div className="space-y-3 p-4">
-        {[
-          ['Immediate impact', ai.immediateImpact],
-          ['Secondary impact', ai.secondaryImpact],
-          ['Downstream impact', ai.downstreamImpact],
-          ['Cost impact', ai.costImpact],
-          ['Margin impact', ai.marginImpact],
-          ['Schedule impact', ai.scheduleImpact],
-        ].map(([label, value]) => (
-          <div key={label} className="rounded-2xl border border-slate-200 bg-white p-3">
-            <div className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-400">{label}</div>
-            <div className="mt-1 text-sm font-bold leading-relaxed text-slate-800">{value}</div>
-          </div>
-        ))}
-
-        <div className={`rounded-3xl border p-4 ${urgencyTone.bg} ${urgencyTone.border}`}>
-          <div className="flex items-center justify-between gap-3">
-            <div className={`text-[11px] font-black uppercase tracking-[0.16em] ${urgencyTone.text}`}>AI recommended action</div>
-            <div className="rounded-full border border-white/70 bg-white/70 px-2.5 py-1 text-[11px] font-black text-slate-700">{ai.confidence.toFixed(0)}% confidence</div>
-          </div>
-          <div className="mt-2 text-sm font-black leading-relaxed text-slate-950">{ai.recommendation}</div>
+        <div className="grid grid-cols-3 gap-2">
+          <DrawerMetric label="bottleneck" value={metrics.bottleneckSeverity.toFixed(0)} tone={metrics.bottleneckSeverity > 76 ? 'rose' : metrics.bottleneckSeverity > 52 ? 'amber' : 'cyan'} />
+          <DrawerMetric label="delay" value={`${metrics.scheduleDelay.toFixed(1)}d`} tone={metrics.scheduleDelay > 3 ? 'amber' : 'slate'} />
+          <DrawerMetric label="netback" value={`${metrics.marginImpact >= 0 ? '+' : ''}${metrics.marginImpact.toFixed(2)}`} tone={metrics.marginImpact >= 0 ? 'emerald' : 'rose'} />
         </div>
 
-        <div className="rounded-3xl border border-slate-200 bg-slate-50 p-3">
-          <div className="mb-3 flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-slate-500">
-            <CircuitBoard className="h-4 w-4 text-cyan-600" /> propagation path
-          </div>
-          <div className="space-y-2">
-            {ai.propagationPath.map((step, index) => (
-              <div key={`${step.label}-${index}`} className="flex items-center gap-2">
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-white bg-white text-[11px] font-black text-slate-500 shadow-sm">{index + 1}</div>
-                <div className="min-w-0 flex-1 rounded-2xl border border-white bg-white px-3 py-2 shadow-sm">
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-[11px] font-black uppercase tracking-[0.14em] text-slate-400">{step.label}</span>
-                    <span className="text-[11px] font-black" style={{ color: riskRingColor(step.risk) }}>{step.risk.toFixed(0)}</span>
-                  </div>
-                  <div className="truncate text-xs font-bold text-slate-800">{step.value}</div>
-                </div>
-                {index < ai.propagationPath.length - 1 ? <ArrowRight className="h-4 w-4 shrink-0 text-slate-300" /> : null}
-              </div>
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+          <div className="mb-2 text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">operational path</div>
+          <div className="flex flex-wrap gap-1.5">
+            {localFlow.map((step, index) => (
+              <React.Fragment key={step}>
+                <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[10px] font-black text-slate-600">{step}</span>
+                {index < localFlow.length - 1 ? <ArrowRight className="mt-1 h-3.5 w-3.5 text-slate-300" /> : null}
+              </React.Fragment>
             ))}
           </div>
+        </div>
+
+        <div className="grid gap-2">
+          <div className="rounded-2xl border border-slate-200 bg-white p-3">
+            <div className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">local impact</div>
+            <div className="mt-1 text-sm font-bold leading-relaxed text-slate-800">{ai.immediateImpact}</div>
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-white p-3">
+            <div className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">system impact</div>
+            <div className="mt-1 text-sm font-bold leading-relaxed text-slate-800">{ai.downstreamImpact}</div>
+          </div>
+        </div>
+
+        <div className={`rounded-2xl border p-3 ${urgencyTone.bg} ${urgencyTone.border}`}>
+          <div className="flex items-center justify-between gap-3">
+            <div className={`text-[10px] font-black uppercase tracking-[0.18em] ${urgencyTone.text}`}>recommended action</div>
+            <div className="rounded-full border border-white/70 bg-white/70 px-2 py-1 text-[10px] font-black text-slate-700">{ai.confidence.toFixed(0)}% confidence</div>
+          </div>
+          <div className="mt-2 text-sm font-black leading-relaxed text-slate-950">{ai.recommendation}</div>
         </div>
       </div>
     </div>
@@ -3076,22 +3068,20 @@ function AnalyticsDeck({
 }) {
   const specs = chartSpecsForStage(activeStage);
   return (
-    <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white/85 shadow-[0_28px_80px_-48px_rgba(15,23,42,0.55)] backdrop-blur">
-      <div className="flex flex-col gap-3 border-b border-slate-200 bg-gradient-to-r from-white to-cyan-50/70 p-4 lg:flex-row lg:items-center lg:justify-between">
+    <div className="h-full min-h-0 overflow-hidden rounded-[1.35rem] border border-slate-200 bg-white shadow-[0_18px_55px_-44px_rgba(15,23,42,0.5)]">
+      <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-3">
         <div>
-          <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">
-            <BarChart3 className="h-4 w-4 text-cyan-600" /> Bottom multi-chart analytics deck
-          </div>
-          <div className="mt-1 text-sm font-semibold text-slate-600">Stage-aware analytics update with selected time range, scenario, sliders, materials, and assets.</div>
+          <div className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">analytics deck</div>
+          <div className="text-sm font-black text-[#001C2E]">{STAGES.find((stage) => stage.id === activeStage)?.name} · stage-aware trends</div>
         </div>
-        <div className="flex gap-1.5 rounded-2xl border border-slate-200 bg-white p-1.5">
+        <div className="flex gap-1 rounded-2xl border border-slate-200 bg-slate-50 p-1">
           {rangeOptions.map((range) => (
             <button
               key={range}
               type="button"
               onClick={() => onTimeRangeChange(range)}
-              className={`rounded-xl px-3 py-2 text-xs font-black transition-all ${
-                selectedTimeRange === range ? 'bg-slate-950 text-white shadow-lg shadow-slate-400/30' : 'text-slate-600 hover:bg-cyan-50 hover:text-cyan-700'
+              className={`rounded-xl px-2.5 py-1.5 text-[10px] font-black transition ${
+                selectedTimeRange === range ? 'bg-[#001C2E] text-white' : 'text-slate-600 hover:bg-white hover:text-cyan-700'
               }`}
             >
               {range}
@@ -3099,15 +3089,41 @@ function AnalyticsDeck({
           ))}
         </div>
       </div>
-      <div className="grid gap-4 p-4 lg:grid-cols-2 2xl:grid-cols-4">
+      <div className="grid h-[calc(100%-58px)] min-h-0 gap-3 p-3 md:grid-cols-2">
         {specs.map((spec, index) => (
-          <ChartCard key={spec.title} spec={spec} data={chartData} index={index} />
+          <div key={spec.title} className="min-h-0 overflow-hidden rounded-2xl border border-slate-200 bg-white p-3">
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <div>
+                <div className="text-xs font-black text-slate-900">{spec.title}</div>
+                <div className="text-[10px] font-semibold text-slate-500">{spec.subtitle}</div>
+              </div>
+              <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-1 text-[10px] font-black text-slate-500">{spec.unit}</span>
+            </div>
+            <div className="h-[calc(100%-42px)] min-h-[110px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={chartData} margin={{ top: 4, right: 8, left: -18, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id={`compact-${index}`} x1="0" x2="0" y1="0" y2="1">
+                      <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.32} />
+                      <stop offset="95%" stopColor="#0ea5e9" stopOpacity={0.03} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid stroke="#e2e8f0" strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="label" tick={{ fontSize: 9, fill: '#64748b', fontWeight: 700 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 9, fill: '#94a3b8', fontWeight: 700 }} axisLine={false} tickLine={false} />
+                  <Tooltip contentStyle={{ borderRadius: 14, border: '1px solid #e2e8f0', fontWeight: 700 }} />
+                  <Area dataKey="primary" name={spec.primary} type="monotone" stroke="#0ea5e9" strokeWidth={2.4} fill={`url(#compact-${index})`} />
+                  <Line dataKey="risk" name="Risk" stroke="#64748b" strokeWidth={1.8} dot={false} type="monotone" strokeDasharray="5 5" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
         ))}
       </div>
     </div>
   );
 }
-function DrawerMetric({ label, value, tone = 'slate' }: { label: string; value: string; tone?: 'slate' | 'cyan' | 'emerald' | 'amber' | 'rose' | 'blue' }) {
+function DrawerMetric({ label, value, tone = 'slate' }: { label: string; value: string; tone?: 'slate' | 'cyan' | 'emerald' | 'amber' | 'rose' | 'blue'; key?: string }) {
   const toneMap = {
     slate: 'text-slate-900 bg-white border-slate-200',
     cyan: 'text-cyan-700 bg-cyan-50 border-cyan-200',
@@ -3400,7 +3416,7 @@ function DetailDrawer({
           <div className="flex-1 space-y-4 overflow-y-auto p-4">
             <div className="grid grid-cols-2 gap-2">
               {drawerMetrics.map(([label, value, tone]) => (
-                <DrawerMetric key={label} label={label} value={value} tone={tone as any} />
+                <DrawerMetric key={label} label={label} value={value} tone={tone as 'slate' | 'cyan' | 'emerald' | 'amber' | 'rose' | 'blue'} />
               ))}
             </div>
 
@@ -3476,7 +3492,7 @@ function materialStage(material: MaterialId): StageId {
 }
 
 export default function PluspetrolWellFactoryCommand() {
-  const APP_SCALE = 0.67;
+  const APP_SCALE = 0.69;
 
   const [activeStage, setActiveStage] = useState<StageId>('completion');
   const [activeScenario, setActiveScenario] = useState<ScenarioId>('normal');
@@ -3889,14 +3905,14 @@ export default function PluspetrolWellFactoryCommand() {
         ? `${selectedAsset.type} · ${selectedAsset.id}`
         : 'The whole field remains the active context.';
 
-  const CompactKpi = ({ item }: { item: (typeof kpiRibbon)[number] }) => {
+  const CompactKpi = ({ item }: { item: (typeof kpiRibbon)[number]; key?: string }) => {
     const tone = toneClasses[item.risk];
     return (
-      <button type="button" onClick={() => handleKpiClick(item.id)} className="group rounded-2xl border border-slate-200 bg-white px-3 py-2 text-left transition hover:border-cyan-200 hover:shadow-sm">
+      <button type="button" onClick={() => handleKpiClick(item.id)} className="group rounded-xl border border-slate-200 bg-white px-3 py-2 text-left transition hover:border-cyan-200 hover:shadow-sm">
         <div className="flex items-center justify-between gap-2">
           <div className="min-w-0">
             <div className="truncate text-[9px] font-black uppercase tracking-[0.14em] text-slate-400">{item.label}</div>
-            <div className="mt-1 text-[18px] font-black leading-none text-[#001C2E]">{item.value}</div>
+            <div className="mt-1 text-[16px] font-black leading-none text-[#001C2E]">{item.value}</div>
             <div className="truncate text-[10px] font-semibold text-slate-500">{item.sub}</div>
           </div>
           <div className={`h-8 w-1.5 rounded-full bg-gradient-to-b ${tone.fill}`} />
@@ -3905,7 +3921,7 @@ export default function PluspetrolWellFactoryCommand() {
     );
   };
 
-  const ContextBadge = ({ title, value }: { title: string; value: string }) => (
+  const ContextBadge = ({ title, value }: { title: string; value: string; key?: string }) => (
     <div className="rounded-2xl border border-slate-200 bg-white px-3 py-2">
       <div className="text-[9px] font-black uppercase tracking-[0.18em] text-slate-400">{title}</div>
       <div className="mt-1 text-[13px] font-black leading-tight text-slate-900">{value}</div>
@@ -4072,7 +4088,7 @@ export default function PluspetrolWellFactoryCommand() {
   return (
     <div className="relative h-[100vh] min-h-[740px] w-full overflow-hidden bg-white text-[13px] text-slate-900">
       <div className="flex h-full w-full flex-col" style={{ transform: `scale(${APP_SCALE})`, transformOrigin: 'top left', width: `calc(100% / ${APP_SCALE})`, height: `calc(100% / ${APP_SCALE})` }}>
-        <div className="grid h-full min-h-0 grid-cols-[144px_minmax(0,1fr)_430px] grid-rows-[68px_86px_minmax(0,1fr)_154px] bg-[linear-gradient(180deg,#ffffff,#f8fbfd_58%,#f5f7fa)]">
+        <div className="grid h-full min-h-0 grid-cols-[136px_minmax(0,1fr)_430px] grid-rows-[64px_76px_minmax(0,1fr)_132px] bg-[linear-gradient(180deg,#ffffff,#f8fbfd_58%,#f5f7fa)]">
           <aside className="row-span-4 flex h-full flex-col border-r border-slate-200 bg-[#F7F9FB] px-3 py-4">
             <div className="flex items-center justify-center pb-4">
               <div className="flex h-14 w-14 items-center justify-center rounded-[1.1rem] bg-[#001C2E] shadow-lg">
@@ -4114,7 +4130,7 @@ export default function PluspetrolWellFactoryCommand() {
             </div>
           </aside>
 
-          <header className="col-span-2 flex items-center justify-between gap-4 border-b border-slate-200 px-4 py-3">
+          <header className="col-span-2 flex items-center justify-between gap-4 border-b border-slate-200 px-4 py-2">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-cyan-700">600-well operations system</span>
@@ -4126,7 +4142,7 @@ export default function PluspetrolWellFactoryCommand() {
             <div className="grid min-w-[360px] grid-cols-3 gap-2">{microCards.map((card) => <ContextBadge key={card.label} title={card.label} value={card.value} />)}</div>
           </header>
 
-          <section className="col-span-2 grid grid-cols-[minmax(0,1fr)_280px] gap-3 border-b border-slate-200 px-4 py-3">
+          <section className="col-span-2 grid grid-cols-[minmax(0,1fr)_280px] gap-3 border-b border-slate-200 px-4 py-2">
             <div className="grid grid-cols-8 gap-2">{kpiRibbon.map((item) => <CompactKpi key={item.id} item={item} />)}</div>
             <div className="grid grid-rows-[auto_auto] gap-2">
               <div className="grid grid-cols-3 gap-2">
@@ -4177,7 +4193,7 @@ export default function PluspetrolWellFactoryCommand() {
             </div>
           </aside>
 
-          <footer className="col-span-2 border-t border-slate-200 px-4 py-4">{bottomStrip}</footer>
+          <footer className="col-span-2 border-t border-slate-200 px-4 py-3">{bottomStrip}</footer>
         </div>
       </div>
     </div>
