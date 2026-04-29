@@ -3,15 +3,19 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Lock } from 'lucide-react';
 import { Hero } from './components/01Hero';
 import PluspetrolOperationsCommandV5 from './components/02Dashboardv5';
+import VideoCanvas from './components/VideoCanvas';
 import PluspetrolWellFactoryCommand from './components/FactoryCommand_v4_6';
 import MacroStrategicAperture from './components/03Proposal';
-import FieldRealityAxiomV3 from './components/FieldRealityAxiom_v3';
+import FieldRealityAxiomV3 from './components/FieldRealityAxiom_v4';
 import { DiscoverySimulator } from './components/05Discovery';
 import { Academy } from './components/06Academy';
 import { DevelopmentCase } from './components/07DevelopmentCase';
 import { Security } from './components/08Security';
 import { Experience } from './components/09AiWorkify';
 import { Contacto } from './components/10Contacto';
+import BizCaseA from './components/07BizCaseA';
+import BizCaseB from './components/08BizCaseB.tsx';
+import BizCaseC from './components/09BizCaseC';
 
 const REQUIRE_AUTH = false; // Cambiar a true para reactivar el login con contraseña
 
@@ -120,13 +124,17 @@ const App: React.FC = () => {
       <main>
         <Hero />
         <PluspetrolOperationsCommandV5 />
+        <VideoCanvas />
         <PluspetrolWellFactoryCommand />
-        <FieldRealityAxiomV3 />
         <MacroStrategicAperture />
         <DiscoverySimulator />
         <Academy />
         <DevelopmentCase />
+        <BizCaseA />
+        <BizCaseB />
+        <BizCaseC />
         <Security />
+        <FieldRealityAxiomV3 />
         <Experience />
         <Contacto />
       </main>

@@ -37,7 +37,7 @@ export const Hero: React.FC = () => {
 
         {/* Título Principal */}
         <h1 className="text-5xl md:text-7xl font-display font-bold text-slate-900 mb-6 tracking-tight leading-[1.1]">
-          Cultura IA en Pluspetrol <br />
+          Operación Inteligente en Pluspetrol <br />
           <span className="text-[#001C2E]">
             2026
           </span>
@@ -45,7 +45,7 @@ export const Hero: React.FC = () => {
         
         {/* Subtítulo con NEXUS */}
         <p className="text-xl md:text-2xl text-slate-500 mb-12 max-w-3xl mx-auto font-light leading-relaxed">
-          Implementación de Inteligencia Artificial para Oil and Gas.
+          Implementación de Inteligencia Artificial y proyecto de innovación en las operaciones a largo plazo.
         </p>
 
         {/* Call to Scroll */}
