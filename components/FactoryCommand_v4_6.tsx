@@ -3908,14 +3908,14 @@ export default function PluspetrolWellFactoryCommand() {
   const CompactKpi = ({ item }: { item: (typeof kpiRibbon)[number]; key?: string }) => {
     const tone = toneClasses[item.risk];
     return (
-      <button type="button" onClick={() => handleKpiClick(item.id)} className="group rounded-xl border border-slate-200 bg-white px-3 py-2 text-left transition hover:border-cyan-200 hover:shadow-sm">
-        <div className="flex items-center justify-between gap-2">
+      <button type="button" onClick={() => handleKpiClick(item.id)} className="group min-h-[54px] rounded-xl border border-slate-200 bg-white px-2.5 py-1 text-left transition hover:border-cyan-200 hover:shadow-sm">
+        <div className="flex h-full items-start justify-between gap-2">
           <div className="min-w-0">
-            <div className="truncate text-[9px] font-black uppercase tracking-[0.14em] text-slate-400">{item.label}</div>
-            <div className="mt-1 text-[16px] font-black leading-none text-[#001C2E]">{item.value}</div>
-            <div className="truncate text-[10px] font-semibold text-slate-500">{item.sub}</div>
+            <div className="truncate text-[8px] font-black uppercase leading-none tracking-[0.12em] text-slate-400">{item.label}</div>
+            <div className="mt-0.5 text-[14px] font-black leading-none text-[#001C2E]">{item.value}</div>
+            <div className="mt-0.5 truncate text-[9px] font-semibold leading-none text-slate-500">{item.sub}</div>
           </div>
-          <div className={`h-8 w-1.5 rounded-full bg-gradient-to-b ${tone.fill}`} />
+          <div className={`mt-0.5 h-7 w-1.5 shrink-0 rounded-full bg-gradient-to-b ${tone.fill}`} />
         </div>
       </button>
     );
@@ -4088,7 +4088,7 @@ export default function PluspetrolWellFactoryCommand() {
   return (
     <div className="relative h-[100vh] min-h-[740px] w-full overflow-hidden bg-white text-[13px] text-slate-900">
       <div className="flex h-full w-full flex-col" style={{ transform: `scale(${APP_SCALE})`, transformOrigin: 'top left', width: `calc(100% / ${APP_SCALE})`, height: `calc(100% / ${APP_SCALE})` }}>
-        <div className="grid h-full min-h-0 grid-cols-[136px_minmax(0,1fr)_430px] grid-rows-[64px_76px_minmax(0,1fr)_132px] bg-[linear-gradient(180deg,#ffffff,#f8fbfd_58%,#f5f7fa)]">
+        <div className="grid h-full min-h-0 grid-cols-[168px_minmax(0,1fr)_460px] grid-rows-[84px_96px_minmax(0,1fr)_210px] bg-[linear-gradient(180deg,#ffffff,#f8fbfd_58%,#f5f7fa)]">
           <aside className="row-span-4 flex h-full flex-col border-r border-slate-200 bg-[#F7F9FB] px-3 py-4">
             <div className="flex items-center justify-center pb-4">
               <div className="flex h-14 w-14 items-center justify-center rounded-[1.1rem] bg-[#001C2E] shadow-lg">
@@ -4130,7 +4130,7 @@ export default function PluspetrolWellFactoryCommand() {
             </div>
           </aside>
 
-          <header className="col-span-2 flex items-center justify-between gap-4 border-b border-slate-200 px-4 py-2">
+          <header className="col-span-2 flex items-start justify-between gap-4 border-b border-slate-200 px-4 pb-2 pt-5">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-cyan-700">600-well operations system</span>
@@ -4142,19 +4142,19 @@ export default function PluspetrolWellFactoryCommand() {
             <div className="grid min-w-[360px] grid-cols-3 gap-2">{microCards.map((card) => <ContextBadge key={card.label} title={card.label} value={card.value} />)}</div>
           </header>
 
-          <section className="col-span-2 grid grid-cols-[minmax(0,1fr)_280px] gap-3 border-b border-slate-200 px-4 py-2">
+          <section className="col-span-2 grid grid-cols-[minmax(0,1fr)_330px] gap-3 border-b border-slate-200 px-4 py-2">
             <div className="grid grid-cols-8 gap-2">{kpiRibbon.map((item) => <CompactKpi key={item.id} item={item} />)}</div>
-            <div className="grid grid-rows-[auto_auto] gap-2">
+            <div className="grid min-w-0 grid-rows-[auto_auto] gap-1.5">
               <div className="grid grid-cols-3 gap-2">
                 {(['Digital Twin', 'Constraint Lens', 'Margin Lens'] as ViewMode[]).map((mode) => (
-                  <button key={mode} type="button" onClick={() => setSelectedViewMode(mode)} className={`rounded-2xl border px-2 py-2 text-[10px] font-black transition ${selectedViewMode === mode ? 'border-[#001C2E] bg-[#001C2E] text-white' : 'border-slate-200 bg-white text-slate-600 hover:border-cyan-200 hover:bg-cyan-50'}`}>
+                  <button key={mode} type="button" onClick={() => setSelectedViewMode(mode)} className={`min-h-[36px] rounded-2xl border px-2 py-1.5 text-[9px] font-black leading-tight transition ${selectedViewMode === mode ? 'border-[#001C2E] bg-[#001C2E] text-white' : 'border-slate-200 bg-white text-slate-600 hover:border-cyan-200 hover:bg-cyan-50'}`}>
                     {mode}
                   </button>
                 ))}
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex min-w-0 flex-wrap gap-1.5">
                 {(Object.keys(SCENARIOS) as ScenarioId[]).map((scenario) => (
-                  <button key={scenario} type="button" onClick={() => handleScenarioChange(scenario)} className={`rounded-2xl border px-3 py-2 text-[10px] font-black transition ${activeScenario === scenario ? 'border-cyan-600 bg-cyan-50 text-cyan-700' : 'border-slate-200 bg-white text-slate-500 hover:border-cyan-200 hover:bg-cyan-50'}`}>
+                  <button key={scenario} type="button" onClick={() => handleScenarioChange(scenario)} className={`rounded-2xl border px-2.5 py-1.5 text-[9px] font-black leading-tight transition ${activeScenario === scenario ? 'border-cyan-600 bg-cyan-50 text-cyan-700' : 'border-slate-200 bg-white text-slate-500 hover:border-cyan-200 hover:bg-cyan-50'}`}>
                     {SCENARIOS[scenario].label}
                   </button>
                 ))}
@@ -4193,7 +4193,7 @@ export default function PluspetrolWellFactoryCommand() {
             </div>
           </aside>
 
-          <footer className="col-span-2 border-t border-slate-200 px-4 py-3">{bottomStrip}</footer>
+          <footer className="col-span-2 min-h-0 overflow-visible border-t border-slate-200 px-4 py-3">{bottomStrip}</footer>
         </div>
       </div>
     </div>

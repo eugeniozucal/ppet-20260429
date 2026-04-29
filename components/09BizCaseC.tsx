@@ -5326,22 +5326,6 @@ export default function BizCaseC() {
         onPublish={handlePublish}
       />
 
-      <button
-        type="button"
-        onClick={() => setShowApprovalOverlay(true)}
-        className="fixed bottom-4 right-4 z-40 inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-4 py-3 text-xs font-black text-white shadow-2xl shadow-slate-400/60 transition hover:bg-blue-700"
-      >
-        <Save className="h-4 w-4" />
-        Approve / publish
-      </button>
-      <button
-        type="button"
-        onClick={() => setShowEvidenceDrawer((value) => !value)}
-        className="fixed bottom-4 right-[178px] z-40 inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-xs font-black text-slate-700 shadow-2xl shadow-slate-300/60 transition hover:border-cyan-200 hover:bg-cyan-50"
-      >
-        <PenLine className="h-4 w-4" />
-        Evidence
-      </button>
     </div>
   );
 }

@@ -86,7 +86,7 @@ const DELIVERABLES = [
   { icon: MessageSquare, title: 'Centro de Comunidad IA', desc: 'Canal interno exclusivo para funcionarios, facilitando el intercambio de hallazgos, discusión de ideas y demostración de avances técnicos.' },
   { icon: Globe, title: 'Briefings Globales de Tendencias', desc: 'Seis meses de acceso preferente a las sesiones de expertos de AI Workify sobre la evolución del mercado de IA a nivel mundial.' },
   { icon: Lightbulb, title: 'Foro de Innovadores', desc: 'Espacio mensual post-programa para que los equipos presenten sus propios desarrollos, reciban feedback experto y fomenten el crecimiento orgánico.' },
-  { icon: ClipboardCheck, title: 'Monitor de Adopción (Pulse Survey)', desc: 'Mecanismo estructurado de feedback semestral para documentar el progreso individual y medir el impacto continuo del programa en los procesos del Banco.' },
+  { icon: ClipboardCheck, title: 'Monitor de Adopción (Pulse Survey)', desc: 'Mecanismo estructurado de feedback semestral para documentar el progreso individual y medir el impacto continuo del programa en los procesos de Pluspetrol.' },
   { icon: Mail, title: 'Soporte Directo y Consultoría', desc: 'Línea de comunicación prioritaria (macro@aiworkify.com) para asistencia experta bajo demanda durante todo el ciclo de vida del proyecto.' }
 ];
 
@@ -257,7 +257,7 @@ export const Academy: React.FC = () => {
               <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                 <Monitor className="text-macroCoral" size={20} /> Simulador de ROI
               </h3>
-              <p className="text-xs text-slate-500 mt-2">Cálculo dinámico del impacto de la capacitación en la productividad del Banco.</p>
+              <p className="text-xs text-slate-500 mt-2">Cálculo dinámico del impacto de la capacitación en la productividad de Pluspetrol.</p>
             </div>
 
             <div className="space-y-10 flex-1">

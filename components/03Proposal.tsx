@@ -9,30 +9,30 @@ import { Play, Pause, ArrowRight, Activity, Users, Cpu, Layers, Ear } from 'luci
 const NARRATIVE = [
   {
     phase: 0,
-    tag: "BANCO MACRO 2026",
+    tag: "PLUSPETROL 2026",
     title: "Cultura IA y\nAutomatización.",
-    text: "Proponemos explorar en nuestra primera reunión un potencial de trabajo conjunto organizado en tres dimensiones estratégicas para la innovación con IA en el Banco.",
+    text: "Proponemos explorar en nuestra primera reunión un potencial de trabajo conjunto organizado en tres dimensiones estratégicas para la innovación con IA en Pluspetrol.",
     icon: Activity
   },
   {
     phase: 1,
     tag: "DIMENSIÓN 01",
-    title: "Capacidades.",
-    text: "El entrenamiento de cada persona de la compañía en el uso de IA con las herramientas del paquete de Google y otras que ya esten implementadas en el Banco.",
+    title: "Discovery",
+    text: "La primera fase consiste en encontrar casos de negocio en procesos que ya tienen su registro digital en forma de dato. De todos los que estén en estas condiciones, elegiremos los que traigan alta ganancia y retorno de la inversión a la menor complejidad posible para obtener \"quick wins\".",
     icon: Users
   },
   {
     phase: 2,
     tag: "DIMENSIÓN 02",
     title: "Arquitectura Operativa.",
-    text: "El análisis profundo de los procesos del Banco para identificar fricciones sistémicas y cuellos de botella y aplicar Inteligencia Artificial directamente en el corazón operativo.",
+    text: "El análisis profundo de los procesos de Pluspetrol para identificar fricciones sistémicas y cuellos de botella y aplicar Inteligencia Artificial directamente en el corazón operativo.",
     icon: Cpu
   },
   {
     phase: 3,
     tag: "DIMENSIÓN 03",
     title: "Desarrollo Conjunto",
-    text: "La creación construida de forma colaborativa de nuevas soluciones internas y al público que aprovechen toda la data y experiencia de ambos equipos para generar nuevo valor en el Banco.",
+    text: "La creación construida de forma colaborativa de nuevas soluciones internas y al público que aprovechen toda la data y experiencia de ambos equipos para generar nuevo valor en Pluspetrol.",
     icon: Layers
   },
   {
